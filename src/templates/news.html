@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-four-fifths">
+    <h3 class="title">Coin news</h3>
+    <div class="box">
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          <div class="notification is-danger">
+              {{ messages[0] }}
+          </div>
+      {% endif %}
+      {% endwith %}
+        <form method="POST" action="">
+            <div class="field">
+                <div >
+                    <input class="input is-large" type="text" name="coin_name" placeholder="Type cryptocurrency name" autofocus="">
+                </div>
+            </div>
+            
+            <button class="button is-block is-info is-medium">Check</button>
+        </form>
+        
+        {% for result in results %}
+          <div class="column is-narrow">
+            <h1 class='has-text-weight-bold'>{{ result.header }}</h1>
+            <p class="article-content">{{ result.paragraph }}</p>
+          </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
