@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="column is-four-fifths">
     <h3 class="title">Coin news</h3>
+    
     <div class="box">
       {% with messages = get_flashed_messages() %}
       {% if messages %}
@@ -22,11 +22,12 @@
         </form>
         
         {% for result in results %}
-          <div class="column is-narrow">
-            <h1 class='has-text-weight-bold'>{{ result.header }}</h1>
+          <div class="column is-narrow ">
+            <h1>Article</h1>
             <p class="article-content">{{ result.paragraph }}</p>
+            <h1>Summary:</h1>
+            <h1 class="article-content">{{ result.summary }}</h1>
           </div>
         {% endfor %}
     </div>
-</div>
 {% endblock %}
