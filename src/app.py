@@ -3,6 +3,7 @@ from flask.json import jsonify
 from flask_sqlalchemy import SQLAlchemy
 from bs4 import BeautifulSoup, re
 from selenium import webdriver
+import time
 from webdriver_manager.chrome import ChromeDriverManager
 from transformers import pipeline
 from datetime import datetime, timedelta
@@ -72,22 +73,48 @@ def find_coin_news():
         opts.headless =True
         
         browser = webdriver.Chrome(ChromeDriverManager().install(), options=opts)
-
         r = browser.get(URL)
 
-        soup = BeautifulSoup(browser.page_source, 'html.parser')
-        headers_list = soup.find_all('h3', {'class': 'sc-1q9q90x-0 gEZmSc'})
-        p_list = soup.find_all('p',class_=re.compile('svowul-3 ddtKCV'))
-        headers_text = [h.text for h in headers_list]
-        p_text = [p.text for p in p_list]
+        button = browser.find_elements_by_xpath("//button[text()='Load More']")
 
-        for i in range(0, min(len(headers_text), len(p_text))):
-            news = News(coin=coin_name, header=headers_text[i], paragraph=p_text[i])
+        for i in range(3):
+            button[0].click()
+            time.sleep(3)
+        
+        news = browser.find_elements_by_xpath("//main//a")
+        news_links = [n.get_attribute("href") for n in news] 
+
+        for i in  range(0, len(news_links)):
+            link = news_links[i]
+            r = browser.get(link)
+
+            soup = BeautifulSoup(browser.page_source, 'html.parser')  
+            p_list = soup.find_all('p')
+            p_text = [p.text for p in p_list]
+
+            print(len(p_text))
+            ARTCILE = ' '.join(p_text)
+            print(ARTCILE)
+            news = News(coin=coin_name, paragraph=ARTCILE)
             db.session.add(news)
         db.session.commit()
 
         res = News.query.filter_by(coin=coin_name).all()
         return render_template('news.html', results=res)
+
+        # soup = BeautifulSoup(browser.page_source, 'html.parser')
+        # headers_list = soup.find_all('h3', {'class': 'sc-1q9q90x-0 gEZmSc'})
+        # p_list = soup.find_all('p',class_=re.compile('svowul-3 ddtKCV'))
+        # headers_text = [h.text for h in headers_list]
+        # p_text = [p.text for p in p_list]
+
+        # for i in range(0, min(len(headers_text), len(p_text))):
+        #     news = News(coin=coin_name, header=headers_text[i], paragraph=p_text[i])
+        #     db.session.add(news)
+        # db.session.commit()
+
+        # res = News.query.filter_by(coin=coin_name).all()
+        # return render_template('news.html', results=res)
     
     return render_template('news.html', results=res)
     
@@ -96,35 +123,6 @@ def find_coin_news():
 def coin_news():
     return render_template('news.html')
 
-
-@app.route('/paragraphs', methods=['POST'])
-def find_coin_paragraphs():
-    coin_name = refactoreCoinName(request.form.get('coin_name'))
-
-    res = News.query.filter_by(coin=coin_name).all()
-
-    if not res:
-        URL = "https://coinmarketcap.com/currencies/" + coin_name +"/"
-        r = requests.get(URL)
-
-        soup = BeautifulSoup(r.text, 'html.parser')
-        header_tags = soup.find_all(['h1'])
-        paragraph_tags = soup.find_all(['p'])
-        
-        for p in paragraph_tags:
-            paragraphs = Paragraphs(coin=coin_name, header=header_tags[0].text, paragraph=p.text)
-            db.session.add(paragraphs)
-        db.session.commit()
-
-        res = Paragraphs.query.filter_by(coin=coin_name).all()
-        return render_template('paragraphs.html', results=res)
-
-    return render_template('paragraphs.html', results=res)
-
-
-@app.route('/paragraphs', methods=['GET'])
-def coin_paragraphs():
-    return render_template('paragraphs.html')
 
 
 class User(db.Model):
@@ -147,46 +145,30 @@ class News(db.Model):
     __tablename__ = 'News'
     id = db.Column('id', db.Integer, primary_key=True)
     coin = db.Column('coin', db.String(80))
-    header = db.Column('header', db.Text)
     paragraph = db.Column('paragraph', db.Text)
+    # summary = db.Column('summary', db.Text)
 
-    def __init__(self, coin, header, paragraph):
+    def __init__(self, coin, paragraph):
         self.coin = coin
-        self.header = header
         self.paragraph = paragraph
 
     def __repr__(self):
-        return f"News('{self.header}', '{self.paragraph}')"
+        return f"News('{self.coin}', '{self.paragraph}')"
 
 
-class Paragraphs(db.Model):
-    __tablename__ = 'Paragraphs'
-    id = db.Column('id', db.Integer, primary_key=True)
-    coin = db.Column('coin', db.String(80))
-    header = db.Column('header', db.Text)
-    paragraph = db.Column('paragraph', db.Text)
 
-    def __init__(self, coin, header, paragraph):
-        self.coin = coin
-        self.header = header
-        self.paragraph = paragraph
+# db.drop_all()
+# db.create_all()
 
-    def __repr__(self):
-        return f"Paragraphs('{self.header}', '{self.paragraph}')"
+# user1 = User(login='first_user', password='password', token='some_token')
+# user2 = User(login='second_user', password='password', token='some_token')
+# user3 = User(login='third_user', password='password', token='some_token')
 
+# db.session.add(user1)
+# db.session.add(user2)
+# db.session.add(user3)
 
-db.drop_all()
-db.create_all()
-
-user1 = User(login='first_user', password='password', token='some_token')
-user2 = User(login='second_user', password='password', token='some_token')
-user3 = User(login='third_user', password='password', token='some_token')
-
-db.session.add(user1)
-db.session.add(user2)
-db.session.add(user3)
-
-db.session.commit()
+# db.session.commit()
 
 
 if __name__ == "__main__":
@@ -197,6 +179,3 @@ if __name__ == "__main__":
 # summarizer = pipeline("summarization")
 # res = summarizer(text, max_length=60, min_length=30, do_sample=False)
 # print(res)
-
-
-
