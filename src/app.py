@@ -92,10 +92,8 @@ def find_coin_news():
 
             p_list = browser.find_elements_by_xpath("//div//p")
             p_text = [p.text for p in p_list]
-
-            print(len(p_text))
             ARTICLE = ' '.join(p_text)
-            print(ARTICLE)
+            
             SUM = summarizer(ARTICLE, max_length=75, min_length=60, do_sample=False)
             sum = ' '.join([summ['summary_text'] for summ in SUM])
             news = News(coin=coin_name, paragraph=ARTICLE, summary=sum)
