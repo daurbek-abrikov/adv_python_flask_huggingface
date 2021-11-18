@@ -10,15 +10,14 @@ import jwt
 import time
 
 
-
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:5432/python_flask_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:785213@localhost:5432/pythonFlaskDB'
 app.config['SECRET_KEY'] = 'thisismyflasksecretkey'
 
 db = SQLAlchemy(app)
 
 
-def refactoreCoinName(coin): # For example "Binance Coin" -> "binance-coin"
+def refactoredCoinName(coin): # For example "Binance Coin" -> "binance-coin"
     result = str(coin.lower())
     splittedCoin = result.split()
     if len(splittedCoin) > 1:
@@ -63,7 +62,7 @@ def login_page():
 
 @app.route('/news', methods=['POST'])
 def find_coin_news():
-    coin_name = refactoreCoinName(request.form.get('coin_name'))
+    coin_name = refactoredCoinName(request.form.get('coin_name'))
 
     res = News.query.filter_by(coin=coin_name).all() 
 
@@ -111,7 +110,6 @@ def coin_news():
     return render_template('news.html')
 
 
-
 class User(db.Model):
     __tablename__ = 'User'
     id = db.Column('id', db.Integer, primary_key=True)
@@ -144,7 +142,6 @@ class News(db.Model):
         return f"News('{self.coin}', '{self.paragraph}', '{self.summary}')"
 
 
-
 db.drop_all()
 db.create_all()
 
@@ -161,4 +158,3 @@ db.session.commit()
 
 if __name__ == "__main__":
     app.run(debug=True)
-

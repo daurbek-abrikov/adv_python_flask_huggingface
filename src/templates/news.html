@@ -1,33 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h3 class="title">Coin news</h3>
+    <div class="container">
+        <h3 class="title">Coin news</h3>
     
-    <div class="box">
-      {% with messages = get_flashed_messages() %}
-      {% if messages %}
-          <div class="notification is-danger">
-              {{ messages[0] }}
-          </div>
-      {% endif %}
-      {% endwith %}
-        <form method="POST" action="">
-            <div class="field">
-                <div >
-                    <input class="input is-large" type="text" name="coin_name" placeholder="Type cryptocurrency name" autofocus="">
+        <div class="box">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+        {% endwith %}
+            <form method="POST" action="">
+                <div class="field">
+                    <div >
+                        <input class="input is-large" type="text" name="coin_name" placeholder="Type cryptocurrency name" autofocus="">
+                    </div>
+                </div>
+                
+                <button class="button is-block is-info is-medium">Check</button>
+            </form>
+            
+            {% for result in results %}
+            <div style="display: flex; justify-content: space-between; margin: 30px 0">
+                <div class="left" style="width: 65%">
+                    <h1 style="font-size: 32px; margin-bottom: 10px">Article</h1>
+                    <p class="article-content">{{ result.paragraph }}</p>
+                </div>
+                <div class="right" style="width: 30%;">
+                    <h1 style="font-size: 32px; margin-bottom: 10px">Summary:</h1>
+                    <h1 class="article-content">{{ result.summary }}</h1>
                 </div>
             </div>
-            
-            <button class="button is-block is-info is-medium">Check</button>
-        </form>
-        
-        {% for result in results %}
-          <div class="column is-narrow ">
-            <h1>Article</h1>
-            <p class="article-content">{{ result.paragraph }}</p>
-            <h1>Summary:</h1>
-            <h1 class="article-content">{{ result.summary }}</h1>
-          </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
