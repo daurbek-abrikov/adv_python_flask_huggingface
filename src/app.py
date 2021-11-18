@@ -71,6 +71,7 @@ def find_coin_news():
         opts = webdriver.ChromeOptions()
         opts.headless =True
         opts.add_argument("--enable-javascript")
+        opts.add_experimental_option("prefs", {"profile.default_content_setting_values.cookies": 2})
         
         browser = webdriver.Chrome(ChromeDriverManager().install(), options=opts)
         r = browser.get(URL)
