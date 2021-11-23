@@ -1,0 +1,8 @@
+###### Requirements with Version Specifiers ######`
+beautifulsoup4 >= 4.10.0
+Flask >= 2.0.0
+Flask_SQLAlchemy >= 2.5.1
+PyJWT >= 2.3.0
+selenium >= 4.0.0
+transformers >= 4.12.3
+webdriver_manager >= 3.5.2
