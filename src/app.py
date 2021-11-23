@@ -77,11 +77,11 @@ def find_coin_news():
         r = browser.get(URL)
         
         summarizer = pipeline("summarization")
-        # button = browser.find_elements_by_xpath("//button[text()='Load More']")
+        button = browser.find_elements_by_xpath("//button[text()='Load More']")
 
-        # for i in range(3):
-        #     button[0].click()
-        #     time.sleep(3)
+        for i in range(3):
+            button[0].click()
+            time.sleep(3)
         
         news = browser.find_elements_by_xpath("//main//a")
         news_links = [n.get_attribute("href") for n in news] 
@@ -89,8 +89,11 @@ def find_coin_news():
         for i in  range(0, len(news_links)):
             link = news_links[i]
             r = browser.get(link)
+            
+            soup = BeautifulSoup(browser.page_source, 'html.parser')
 
-            p_list = browser.find_elements_by_xpath("//div//p")
+
+            p_list = browser.find_all('p')
             p_text = [p.text for p in p_list]
             ARTICLE = ' '.join(p_text)
             
